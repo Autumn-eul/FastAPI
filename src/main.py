@@ -91,19 +91,19 @@ def item_handler(
 """
 127.0.0.1:8000/categories/pants?min_price=10000&max_price=50000
 -> 카테고리 이름이 pants인 상품에 대해서 가격 1만원 ~ 5만원
+"""
 
+"""
 /items/3?max_price=100
 => 
 3 : path param
 max_price : query param
-
-from typing import Annotated
-
-type hint + 주석 (설명충)
-python 3.9부터 생긴 최신 문법으로 metadata를 함께 정의할 수 있음
-메타데이터: 다른 개발자를 위한 문서 역할(주석 대신 사용)
-def say_hello(name: Annotated[str, "출력하고 싶은 이름"] -> str:
-return f"Hello, {name}"
-
-
 """
+
+# from typing import Annotated
+
+# type hint + 주석 (설명충)
+# python 3.9부터 생긴 최신 문법으로 metadata를 함께 정의할 수 있음
+# 메타데이터: 다른 개발자를 위한 문서 역할(주석 대신 사용)
+# def say_hello(name: Annotated[str, "출력하고 싶은 이름"] -> str:
+#       return f"Hello, {name}"
