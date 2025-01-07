@@ -1,23 +1,26 @@
 from fastapi import FastAPI
-
+from items.routers import router as item_router
+from users.routers import router as user_router
 app = FastAPI()
+app.include_router(item_router)
+app.include_router(user_router)
 
-@app.get("/")
-def health_check_handler():
-    return {"ping": "pong"}
 
-@app.get("/hello")
-def hello_handler():
-    return {"hello": "world"}
+# BaseModel: 우리가 직접 검증할 데이터를 선언해서 사용할 때
+# fastapi: Query, Body, Header -> FastAPI 가 미리 만들어놓은 클래스
 
-items = [
-	{"id": 1, "name": "i-phone 16", "price": 100},
-	{"id": 2, "name": "Galaxy 25", "price": 200},
-    {"id": 3, "name": "Huawei", "price": 50},
-]
+
+# @app.get("/")
+# def health_check_handler():
+#     return {"ping": "pong"}
+#
+# @app.get("/hello")
+# def hello_handler():
+#     return {"hello": "world"}
+
 
 """
-# 전체 상품 목록
+# 전체 상품 목록 API
 # Query Param: 127.0.0.1:8000/items?price_lt=10000
 @app.get("/items")
 def items_handler(price_lt: int | None = None):
@@ -35,11 +38,13 @@ def items_handler(price_lt: int | None = None):
 
     # return {"Query Param": price_lt}
 
-# 특정 상품 반환
+
+# 특정 상품 반환 API
 @app.get("/items/{item_id}")
 def item_handler(item_id: int):
     item_id += 1000
     return {"item_id": item_id}
+
 
 # lt: less than = 미만
 # gt: greater than = 초과
@@ -50,48 +55,28 @@ def item_handler(item_id: int):
 # Query Param : 물음표 뒤에 받아오는 값
 """
 
-# 전체 상품 목록
-# Query Param: 127.0.0.1:8000/items?min_price=100&max_price=200
-@app.get("/items")
-def items_handler(
-    min_price: int | None = None,
-    max_price: int | None = None,
-):
-    result = items
-    if min_price:
-        # 가격이 min_price 이상인 상품만 조회
-        new_result = []
-        for item in result:
-            if item["price"] >= min_price:
-                new_result.append(item)
-                result = new_result
 
-        # result = [item for item in result if item["price"] >= min_price]
+# 특정 상품 반환 API
+# 1. 일반 & 필수
+# max_price: int
 
-    if max_price:
-        # 가격이 max_price 이하인 상품만 조회
-        result = [item for item in result if item["price"] <= max_price]
+# 2. 일반 & 필수 X
+# max_price: int = 10
+# max_price: int | None = None
 
-    return {"items": result}
+# 3. Query Class & 필수
+# max_price: int = Query(..., ge=10_000, lt=1_000_000)
 
+# 4. Query Class & 필수 X
+# max_price:int | None=Query(None, ge=10_000)
+# 추가적인 조건을 지정해주기 위함이다
 
-# 특정 상품 반환
-@app.get("/items/{item_id}") # 동적인 path
-def item_handler(
-    item_id: int,   # path 변수
-    max_price: int | None = None,   # query param
-):
-    result = None
-    for item in items:
-        if item["id"] == item_id:
-            result = item
-            print(f"max_price: {max_price}")
-    return {"item": result}
 
 """
 127.0.0.1:8000/categories/pants?min_price=10000&max_price=50000
 -> 카테고리 이름이 pants인 상품에 대해서 가격 1만원 ~ 5만원
 """
+
 
 """
 /items/3?max_price=100
@@ -99,6 +84,7 @@ def item_handler(
 3 : path param
 max_price : query param
 """
+
 
 # from typing import Annotated
 
