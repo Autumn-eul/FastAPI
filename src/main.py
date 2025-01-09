@@ -1,9 +1,41 @@
-from fastapi import FastAPI
+from datetime import datetime
+from fastapi import FastAPI, Response
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 from items.routers import router as item_router
 from users.routers import router as user_router
 app = FastAPI()
 app.include_router(item_router)
 app.include_router(user_router)
+
+class NowResponse(BaseModel):
+    now: datetime
+
+
+@app.get("/now", response_model=NowResponse) # response_model 을 추가하면 schema 가 추가되고 응답 얘시를 볼수 있음
+def get_now_handler():
+    # return {"now": datetime.now()} ==
+    return NowResponse(now=datetime.now())
+    # 사실상 같은건데 왜 이렇게 하나요?
+    # NowResponse 가 한번더 검사하고 전달하기 때문에 안정적이다
+    # 응답 예시가 문서화 되기때문에 가독성이 증가
+    # 다른 필요한 곳에서 재사용 할수 있음
+    # 따라서 일반적으로 응답에 pydantic 을 사용하는게 좋음
+
+
+    # html = f"<html><body><h1>now: {datetime.now()}</h1></body></html>"
+
+    # return HTMLResponse(content=html)
+    # == return Response(content=html, media_type="text/html")
+
+    # Python datetime 객채 -> JSON String
+    # return {"now": datetime.now()} # fastapi가 알아서 직렬화 / 역직렬화를 해줌
+
+    # return Response(
+    #     content=str(datetime.now()), # str로 감싸지 않으면 datetime 객체이기 때문에 인식할 수 없어서 500 에러 발생
+    #     media_type="text/plain",
+    #     status_code=201, # Response 를 사용하면 상태코드도 변경할 수 있음
+    # )
 
 
 # BaseModel: 우리가 직접 검증할 데이터를 선언해서 사용할 때

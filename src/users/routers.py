@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+import os
+import shutil # shell util
+import uuid
+from fastapi import APIRouter, UploadFile
 from datetime import date
 from users.request import UserCreateRequestBody, UserUpdateRequestBody
 
@@ -41,6 +44,29 @@ def update_user_handler(user_id: int, body: UserUpdateRequestBody):
         if user["id"] == user_id:
             user["name"] = body.name
             return user
+
+# C: 사용자 프로필 이미지 업로드 API
+@router.post("/users/{user_id}/images")
+def update_profile_image_handler(user_id: int, profile_image: UploadFile):
+    for user in users:
+        if user["id"] ==user_id:
+
+            # 파일의 이름과 함께 파일도 저장
+            unique_filename = f"{uuid.uuid4()}_{profile_image.filename}" # 중복되지 않게 문자를 생성해서 앞에 붙여줌
+            user["image"] = profile_image.filename
+
+            file_path = os.path.join("users/images", unique_filename)
+            with open(file_path, "wb") as f:
+                shutil.copyfileobj(profile_image.file, f) # 이미지 파일을 복사해서 새로운 파일을 만든 후 images 아래에 저장
+
+            user["image"] = unique_filename
+            return user
+
+    # return {
+    #     "name": profile_image.filename,
+    #     "size": profile_image.size,
+    #     "type": profile_image.content_type,
+    # }
 
 # D: 유저 삭제 API
 @router.delete("/users/{user_id}")
